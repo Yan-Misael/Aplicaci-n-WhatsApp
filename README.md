@@ -1,4 +1,4 @@
-# Aplicaci-n-WhatsApp
+# Aplicacion-WhatsApp
 Desarrollo de una aplicación distribuida en Java compuesta por procesos independientes tales como la creación de grupos y manejo de llamadas.
 
 
