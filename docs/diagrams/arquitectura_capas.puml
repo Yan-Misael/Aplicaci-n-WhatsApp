@@ -17,8 +17,8 @@ skinparam shadowing false
 
 rectangle "<b>CAPA 1 — Presentación (Cliente)</b>\nClienteNodo  [consola]  |  <i>whatsapp.client</i>" as C1 #DDEEFF
 rectangle "<b>CAPA 2 — Datos  (DTOs de Red)</b>\nPaqueteRed · PaqueteLogin · PaqueteLogout · PaqueteMensaje\nPaqueteCrearGrupo · PaqueteUnirseGrupo · PaqueteConfirm · PaqueteError\n<i>whatsapp.common.models</i>" as C2 #FFE8C0
-rectangle "<b>CAPA 4 — Red  (Handlers)</b>\nManejadorCliente  [Thread por cliente]  |  ObjectInputStream / ObjectOutputStream\n<i>whatsapp.server.handlers</i>" as C4 #F5E6FF
-rectangle "<b>CAPA 3 — Lógica  (Estado Global)</b>\nSessionManager  [Monitor Lock — synchronized]\nGroupManager  [ReentrantReadWriteLock + copias defensivas]\n<i>whatsapp.server.managers</i>" as C3 #D6F5D6
+rectangle "<b>CAPA 3 — Red  (Handlers)</b>\nManejadorCliente  [Thread por cliente]  |  ObjectInputStream / ObjectOutputStream\n<i>whatsapp.server.handlers</i>" as C3 #F5E6FF
+rectangle "<b>CAPA 4 — Lógica  (Estado Global)</b>\nSessionManager  [Monitor Lock — synchronized]\nGroupManager  [ReentrantReadWriteLock + copias defensivas]\n<i>whatsapp.server.managers</i>" as C4 #D6F5D6
 
 ' ─────────────────────────────────────────────────────────
 ' CAPA 5 al costado derecho (bootstrapper)
@@ -31,15 +31,15 @@ rectangle "<b>CAPA 5 — Núcleo (Core)</b>\nServidorPrincipal\nServerSocket(234
 ' ─────────────────────────────────────────────────────────
 
 C1 -down-> C2 : serializa DTOs\n(Marshalling Java)
-C2 -down-> C4 : paquetes por\nsocket TCP
-C4 -down-> C3 : consulta /\nactualiza estado
+C2 -down-> C3 : paquetes por\nsocket TCP
+C3 -down-> C4 : consulta /\nactualiza estado
 
 ' ─────────────────────────────────────────────────────────
 ' RELACIONES DE INICIALIZACIÓN (Core → capas del servidor)
 ' ─────────────────────────────────────────────────────────
 
-C5 -left-> C4 : crea hilo por\ncliente
-C5 -left-> C3 : inicializa\ngestores
+C5 -left-> C3 : crea hilo por\ncliente
+C5 -left-> C4 : inicializa\ngestores
 
 ' ─────────────────────────────────────────────────────────
 ' NOTAS
@@ -50,7 +50,7 @@ note right of C2
   Polimorfismo en red via instanceof.
 end note
 
-note right of C3
+note right of C4
   Patrón Monitor (SessionManager).
   Patrón Read-Write Lock (GroupManager).
   Principios SRP y DIP.
