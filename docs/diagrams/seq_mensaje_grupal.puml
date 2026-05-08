@@ -26,6 +26,12 @@ note right of GM
   Devuelve new ArrayList<>(miembros).
 end note
 
+alt miembros vacíos (grupo no existe)
+    MCE --> CLIE : PaqueteError — "El grupo 'sala1' no existe."
+else emisor no es miembro del grupo
+    MCE --> CLIE : PaqueteError — "No eres miembro del grupo 'sala1'."
+else emisor es miembro
+
 loop por cada miembro ≠ E  (ej: M1, M2)
     MCE -> SM : obtenerSesion(miembro)
     alt miembro desconectado (sesión null)
@@ -40,6 +46,8 @@ loop por cada miembro ≠ E  (ej: M1, M2)
             MCE ->  MCE  : System.err — "Error aislando nodo caído en grupo: [idMiembro]"\ncontinúa con siguiente miembro
         end
     end
+end
+
 end
 
 @enduml

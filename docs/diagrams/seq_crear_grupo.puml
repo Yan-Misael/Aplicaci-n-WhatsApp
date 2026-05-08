@@ -22,14 +22,19 @@ else usuario autenticado
 
     note right of GM
       writeLock().lock()
-      Si el grupo ya existe, la operación
-      se ignora silenciosamente (sin error).
+      Si el grupo ya existe, retorna false.
       El creador queda como primer miembro.
     end note
 
-    GM  --> MC  : (void)
-    MC  --> CLI : PaqueteConfirm — "Grupo '<idGrupo>' creado."
-    CLI -->  U  : muestra confirmación
+    alt grupo creado con éxito
+        GM  --> MC  : true
+        MC  --> CLI : PaqueteConfirm — "Grupo '<idGrupo>' creado."
+        CLI -->  U  : muestra confirmación
+    else grupo ya existe
+        GM  --> MC  : false
+        MC  --> CLI : PaqueteError — "No se pudo crear el grupo '<idGrupo>': ya existe un grupo con este nombre."
+        CLI -->  U  : muestra error
+    end
 end
 
 @enduml
