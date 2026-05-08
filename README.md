@@ -43,7 +43,7 @@ Para manejar múltiples usuarios al mismo tiempo sin que la memoria se corrompa,
 
 1.  **Requisitos:** Tener instalado JDK 17 y Apache Maven.
 2.  **Configuración:** Abrir la carpeta raíz como proyecto Maven en el IDE.
-3.  **Arranque:** Ejecutar la clase `whatsapp.server.core.ServidorPrincipal`. El servidor utilizará el puerto `5000` por defecto.
+3.  **Arranque:** Ejecutar la clase `whatsapp.server.core.ServidorPrincipal`. El servidor utilizará el puerto `2346` por defecto.
 
 ## 6. Fundamentación de Ingeniería y Diseño
 

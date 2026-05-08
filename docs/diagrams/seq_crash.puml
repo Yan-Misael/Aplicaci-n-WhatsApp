@@ -8,6 +8,7 @@ skinparam defaultFontSize 12
 skinparam shadowing false
 
 participant "ManejadorCliente\n:Thread" as MC
+participant "GroupManager"             as GM
 participant "SessionManager"           as SM
 participant "Socket"                   as SOC
 
@@ -18,12 +19,20 @@ SOC --> MC  : IOException  (EOFException / SocketException)
 
 MC  ->  MC  : catch — "[Alerta] Cliente desconectado abruptamente: [IP]"
 MC  ->  MC  : finally → liberarRecursos()
-MC  ->  SM  : removerUsuario(idUsuarioAsignado)
-SM  --> MC  : sesión eliminada
+
+alt idUsuarioAsignado != null
+    MC  ->  GM  : removerUsuarioDeTodos(idUsuarioAsignado)
+    GM  --> MC  : usuario eliminado de todos los grupos
+    MC  ->  SM  : removerUsuario(idUsuarioAsignado)
+    SM  --> MC  : sesión eliminada
+end
+
+MC  ->  SOC : out.close()
 MC  ->  SOC : socket.close()
 
 note right of MC #E8FFE8
   Recuperación: hilo termina limpiamente.
+  Se limpia estado en GroupManager y SessionManager.
   El resto del servidor no se afecta.
   Aislamiento por Thread-per-connection.
 end note

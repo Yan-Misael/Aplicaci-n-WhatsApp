@@ -24,7 +24,7 @@ rectangle "<b>CAPA 3 — Lógica  (Estado Global)</b>\nSessionManager  [Monitor 
 ' CAPA 5 al costado derecho (bootstrapper)
 ' ─────────────────────────────────────────────────────────
 
-rectangle "<b>CAPA 5 — Núcleo (Core)</b>\nServidorPrincipal\nServerSocket(2346)\nInstancia Singletons\nInyección de Dependencias\n<i>whatsapp.server.core</i>" as C5 #FFE0E0
+rectangle "<b>CAPA 5 — Núcleo (Core)</b>\nServidorPrincipal\nServerSocket(2346)\nInstancia gestores\nInyección de Dependencias\n<i>whatsapp.server.core</i>" as C5 #FFE0E0
 
 ' ─────────────────────────────────────────────────────────
 ' FLUJO DE COMUNICACIÓN (columna principal, top → bottom)
@@ -39,7 +39,7 @@ C4 -down-> C3 : consulta /\nactualiza estado
 ' ─────────────────────────────────────────────────────────
 
 C5 -left-> C4 : crea hilo por\ncliente
-C5 -left-> C3 : inicializa\nSingletons
+C5 -left-> C3 : inicializa\ngestores
 
 ' ─────────────────────────────────────────────────────────
 ' NOTAS

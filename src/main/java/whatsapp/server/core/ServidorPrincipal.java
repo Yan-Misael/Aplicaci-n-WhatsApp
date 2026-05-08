@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 /**
- * Este código establece un servidor multi-hilo (un hilo por cliente) y prepara 
+ * Este código establece un servidor multi-hilo (un hilo por cliente) y prepara
  * el terreno para la sincronización de recursos y el manejo de fallos independientes.
- * Además, por diseño, es en el servidor el único lugar donde se inicialian los gestores de estado o 
- * managers, recordando que son Singletons. También se configura la topología de la red.
+ * Además, por diseño, es en el servidor el único lugar donde se instancian los gestores de estado;
+ * se crean aquí y se inyectan vía DI en cada ManejadorCliente. También se configura la topología de la red.
 */
 public class ServidorPrincipal {
     private static final int PUERTO = 2346;
@@ -19,8 +19,8 @@ public class ServidorPrincipal {
     public static void main(String[] args) {
         System.out.println("=== Iniciando Servidor Central de WhatsApp ===");
         
-        // Inicialización de los recursos compartidos. 
-        // Solo existe una instancia de estos gestores en todo el sistema, pues son Singletons.
+        // Inicialización de los recursos compartidos.
+        // Se crea una única instancia de cada gestor y se inyecta en cada hilo (Inyección de Dependencias).
         SessionManager sessionManager = new SessionManager();
         GroupManager groupManager = new GroupManager();
         

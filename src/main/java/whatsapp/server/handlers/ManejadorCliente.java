@@ -10,8 +10,6 @@ import whatsapp.common.models.PaqueteUnirseGrupo;
 import whatsapp.common.models.PaqueteLogout;
 import whatsapp.server.managers.SessionManager;
 import whatsapp.server.managers.GroupManager;
-import whatsapp.client.ClienteNodo;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -83,12 +81,15 @@ public class ManejadorCliente extends Thread {
                     enviarObjeto(new PaqueteConfirm(userId, true, "Login con éxito"));
                 } catch (IOException e) {
                     liberarRecursos();
+                    throw e;
                 }
                 System.out.println("Usuario " + userId + " autenticado");
             } else {
                 try {
                     enviarObjeto(new PaqueteError(userId, "El id ya esta en uso"));
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    System.err.println("[Servidor] No se pudo notificar rechazo de login a " + userId);
+                }
                 liberarRecursos();
             }
         }
@@ -148,7 +149,9 @@ public class ManejadorCliente extends Thread {
         
         // Finalmente, para el logout
         else if (paquete instanceof PaqueteLogout) {
-            System.out.println("Usuario " + idUsuarioAsignado + " cerro sesión.");
+            if (idUsuarioAsignado != null) {
+                System.out.println("Usuario " + idUsuarioAsignado + " cerro sesión.");
+            }
             liberarRecursos();
         }
         
@@ -193,8 +196,20 @@ public class ManejadorCliente extends Thread {
      * 1.Realiza un broadcast del mensaje a todos los miembros del grupo, excluyendo al remitente.
      * 2.Aisla los fallos individuales para no interrumpir el envío a los demás miembros.
      */
-    private void procesarMensajeGrupal(PaqueteMensaje msg) {
+    private void procesarMensajeGrupal(PaqueteMensaje msg) throws IOException {
         List<String> miembros = groupManager.obtenerCopiaMiembros(msg.getIdDestinatario());
+
+        if (miembros.isEmpty()) {
+            enviarObjeto(new PaqueteError("Servidor",
+                    "El grupo '" + msg.getIdDestinatario() + "' no existe."));
+            return;
+        }
+
+        if (!miembros.contains(idUsuarioAsignado)) {
+            enviarObjeto(new PaqueteError("Servidor",
+                    "No eres miembro del grupo '" + msg.getIdDestinatario() + "'."));
+            return;
+        }
 
         for (String idMiembro : miembros) {
             // No enviar el mensaje de vuelta al que lo emitió
@@ -221,8 +236,10 @@ public class ManejadorCliente extends Thread {
      */
     private void liberarRecursos() {
         if (idUsuarioAsignado != null) {
+            groupManager.removerUsuarioDeTodos(idUsuarioAsignado);
             sessionManager.removerUsuario(idUsuarioAsignado);
         }
+        try { if (out != null) out.close(); } catch (IOException ignored) {}
         try {
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException ignored) {}

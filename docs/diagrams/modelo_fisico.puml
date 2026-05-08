@@ -38,8 +38,8 @@ node "Máquina Servidor\n(JVM — servidor)" as SRV #F0FFF0 {
     component "ManejadorCliente (Hilo-2)\n:Thread" as H2 #DDEEFF
     component "ManejadorCliente (Hilo-N)\n:Thread" as HN #DDEEFF
 
-    component "SessionManager\n(Singleton — Monitor Lock)" as SM #FFE8C0
-    component "GroupManager\n(Singleton — RWLock)" as GM #FFE8C0
+    component "SessionManager\n(Monitor Lock)" as SM #FFE8C0
+    component "GroupManager\n(RWLock)" as GM #FFE8C0
 
     SP --> H1 : crea al aceptar\nconexión
     SP --> H2

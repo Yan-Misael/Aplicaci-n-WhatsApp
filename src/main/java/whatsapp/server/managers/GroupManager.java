@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * [Singleton]
  * Gestor transaccional para la administración y enrutamiento de salas de chat grupales.
  * <p>
  * Implementa un mecanismo de segmentación de bloqueos (Read-Write Lock) para optimizar 
@@ -97,12 +96,25 @@ public class GroupManager {
         rwLock.readLock().lock();
         try {
             List<String> miembros = gruposActivos.get(idGrupo);
-            
+
             // Si pasamos la lista original, quien llame a este método podría
-            // recorrerla mientras otro hilo mete o saca a alguien del grupo. 
+            // recorrerla mientras otro hilo mete o saca a alguien del grupo.
             return ( miembros != null ? new ArrayList<>(miembros) : new ArrayList<>() );
         } finally {
             rwLock.readLock().unlock();
+        }
+    }
+
+    public void removerUsuarioDeTodos(String idUsuario) {
+        if (idUsuario == null) return;
+        rwLock.writeLock().lock();
+        try {
+            for (List<String> miembros : gruposActivos.values()) {
+                miembros.remove(idUsuario);
+            }
+            gruposActivos.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 }

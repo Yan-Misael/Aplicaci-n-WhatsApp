@@ -26,7 +26,8 @@ public class ClienteNodo {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private String miId;
+    private volatile String miId;
+    private volatile String pendingLoginId = null;
     
     private static final String RESET = "\u001B[0m";
     private static final String[] COLORES = {
@@ -134,9 +135,14 @@ public class ClienteNodo {
                                 System.out.println("Ya estás registrado");
                             }
                             else {
-                                miId = partes[1];
-                                out.writeObject(new PaqueteLogin(miId));
-                                out.flush();
+                                String nombre = partes[1].trim();
+                                if (nombre.isEmpty()) {
+                                    System.out.println("El nombre de usuario no puede estar vacío.");
+                                } else {
+                                    pendingLoginId = nombre;
+                                    out.writeObject(new PaqueteLogin(nombre));
+                                    out.flush();
+                                }
                             }
                         } else {
                             System.out.println("Sintaxis: /login <id>");
@@ -197,14 +203,17 @@ public class ClienteNodo {
                     case "/salir":
                         System.out.println("Cerrando cliente...");
                         try {
-                            out.writeObject(new PaqueteLogout(miId));
-                            out.flush();
+                            if (miId != null) {
+                                out.writeObject(new PaqueteLogout(miId));
+                                out.flush();
+                            }
                         } catch (IOException ignored) {}
                         System.exit(0);
                         break;
                         
                     case "/?":
-                    listarComandos();
+                        listarComandos();
+                        break;
 
                     default:
                         System.out.println("Comando no reconocido. Escribe /login, /msg, /creargrupo, /unirse, /gmsg, /salir o /?.");
@@ -237,10 +246,15 @@ public class ClienteNodo {
                 }
                 else if (respuesta instanceof PaqueteConfirm) {
                     PaqueteConfirm conf = (PaqueteConfirm) respuesta;
+                    if (pendingLoginId != null) {
+                        miId = pendingLoginId;
+                        pendingLoginId = null;
+                    }
                     System.out.println("\n[Sistema]: " + conf.getMensaje());
                 }
                 else if (respuesta instanceof PaqueteError) {
                     PaqueteError err = (PaqueteError) respuesta;
+                    pendingLoginId = null;
                     System.err.println("\n[Error]: " + err.getRazon());
                 }
             }

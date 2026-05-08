@@ -30,15 +30,26 @@ package "whatsapp.server.managers" #FFF8EA {
         + obtenerSesion(idUsuario : String) : ManejadorCliente
     }
 
+    note right of SessionManager
+        Patrón Monitor
+        synchronized(monitorLock)
+    end note
+
     class GroupManager {
         - gruposActivos : Map<String, List<String>> {final}
         - rwLock : ReadWriteLock {final}
         --
         + GroupManager()
-        + registrarGrupo(idGrupo : String, idCreador : String) : void
+        + registrarGrupo(idGrupo : String, idCreador : String) : boolean
         + agregarMiembro(idGrupo : String, idUsuario : String) : boolean
         + obtenerCopiaMiembros(idGrupo : String) : List<String>
+        + removerUsuarioDeTodos(idUsuario : String) : void
     }
+
+    note right of GroupManager
+        Patrón Read-Write Lock
+        Copias defensivas en lectura
+    end note
 }
 
 ' ─────────────────────────────────────────
@@ -62,6 +73,11 @@ package "whatsapp.server.handlers" #F0FFF0 {
         - procesarMensajeGrupal(msg : PaqueteMensaje) : void
         - liberarRecursos() : void
     }
+
+    note right of ManejadorCliente
+        Extiende Thread.
+        Un hilo por cliente conectado.
+    end note
 }
 
 ' ─────────────────────────────────────────
@@ -74,6 +90,12 @@ package "whatsapp.server.core" #FFF0F0 {
         --
         + main(args : String[]) {static}
     }
+
+    note right of ServidorPrincipal
+        Escucha en ServerSocket(2346).
+        Instancia gestores e inyecta
+        dependencias en ManejadorCliente.
+    end note
 }
 
 ' ─────────────────────────────────────────
@@ -83,47 +105,32 @@ package "whatsapp.client" #F5F0FF {
 
     class ClienteNodo {
         - HOST : String {static} = "localhost"
-        - PUERTO : int {static} = 2346
+        - PUERTO : int {static} {final} = 2346
         - socket : Socket
         - out : ObjectOutputStream
         - in : ObjectInputStream
-        - miId : String
+        - {volatile} miId : String
+        - {volatile} pendingLoginId : String = null
+        - RESET : String {static} {final}
+        - COLORES : String[] {static} {final}
+        - coloresAsignados : Map<String, String> {final}
+        - indiceColor : int
         --
         + main(args : String[]) {static}
         + iniciar() : void
         - procesarComandos(scanner : Scanner) : void
         - escucharServidor() : void
+        - obtenerColor(identificador : String) : String
+        - listarComandos() : void
     }
+
+    note right of ClienteNodo
+        Dos hilos: escucha de red (daemon)
+        y lectura de comandos del usuario.
+        COLORES/RESET: paleta ANSI de 25 colores
+        para diferenciar remitentes visualmente.
+    end note
 }
-
-' ─────────────────────────────────────────
-' NOTAS
-' ─────────────────────────────────────────
-note right of SessionManager
-    Patrón Monitor
-    synchronized(monitorLock)
-end note
-
-note right of GroupManager
-    Patrón Read-Write Lock
-    Copias defensivas en lectura
-end note
-
-note right of ManejadorCliente
-    Extiende Thread.
-    Un hilo por cliente conectado.
-end note
-
-note right of ServidorPrincipal
-    Escucha en ServerSocket(2346).
-    Instancia Singletons e inyecta
-    dependencias en ManejadorCliente.
-end note
-
-note right of ClienteNodo
-    Dos hilos: escucha de red (daemon)
-    y lectura de comandos del usuario.
-end note
 
 ' ─────────────────────────────────────────
 ' RELACIONES
