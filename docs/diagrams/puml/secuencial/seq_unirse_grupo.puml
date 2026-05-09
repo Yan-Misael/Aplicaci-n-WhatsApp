@@ -1,5 +1,5 @@
 @startuml seq_unirse_grupo
-title Flujo 5 — Unirse a Grupo Existente
+title Flujo auxiliar - Unirse a Grupo Existente
 
 skinparam sequenceArrowThickness 1.5
 skinparam sequenceParticipantBorderColor #666666
@@ -16,7 +16,8 @@ U   ->  CLI : /unirse <idGrupo>
 CLI ->  MC  : PaqueteUnirseGrupo(idUsuario, idGrupo)
 
 alt usuario no autenticado (idUsuarioAsignado == null)
-    MC  --> CLI : PaqueteError — "Debe autenticarse antes de unirse a un grupo."
+    MC  --> CLI : PaqueteError - "Debe autenticarse antes de unirse a un grupo."
+	CLI --> U   : muestra error
 else usuario autenticado
     MC  ->  GM  : agregarMiembro(idGrupo, idUsuarioAsignado)
 
@@ -28,11 +29,11 @@ else usuario autenticado
 
     alt éxito (grupo existe y usuario no es miembro)
         GM  --> MC  : true
-        MC  --> CLI : PaqueteConfirm — "Te uniste al grupo '<idGrupo>'."
+        MC  --> CLI : PaqueteConfirm - "Te uniste al grupo '<idGrupo>'."
         CLI -->  U  : muestra confirmación
     else fallo (grupo no existe o ya es miembro)
         GM  --> MC  : false
-        MC  --> CLI : PaqueteError — "No se pudo unir al grupo '<idGrupo>': no existe o ya eres miembro."
+        MC  --> CLI : PaqueteError - "No se pudo unir al grupo '<idGrupo>': no existe o ya eres miembro."
         CLI -->  U  : muestra error
     end
 end

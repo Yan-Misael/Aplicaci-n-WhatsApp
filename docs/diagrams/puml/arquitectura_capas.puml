@@ -30,8 +30,8 @@ rectangle "<b>CAPA 5 — Núcleo (Core)</b>\nServidorPrincipal\nServerSocket(234
 ' FLUJO DE COMUNICACIÓN (columna principal, top → bottom)
 ' ─────────────────────────────────────────────────────────
 
-C1 -down-> C2 : serializa DTOs\n(Marshalling Java)
-C2 -down-> C3 : paquetes por\nsocket TCP
+C1 <-->  C2 :  construye /\nconsume serializables DTOs\n(Marshalling Java)
+C2 <--> C3 : objetos serializables\npor ObjectInputStream / ObjectOutputStream
 C3 -down-> C4 : consulta /\nactualiza estado
 
 ' ─────────────────────────────────────────────────────────

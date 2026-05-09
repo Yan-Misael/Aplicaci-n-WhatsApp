@@ -1,5 +1,5 @@
 @startuml seq_crash
-title Flujo 4 — Desconexión Abrupta (Crash Fault)
+title Modelo de fallos - Desconexión Abrupta de Cliente
 
 skinparam sequenceArrowThickness 1.5
 skinparam sequenceParticipantBorderColor #666666
@@ -17,7 +17,7 @@ note over MC : Cliente cierra la app sin logout.\nTCP RST/FIN llega al servidor.
 MC  ->  SOC : in.readObject()  [bloqueante]
 SOC --> MC  : IOException  (EOFException / SocketException)
 
-MC  ->  MC  : catch — "[Alerta] Cliente desconectado abruptamente: [IP]"
+MC  ->  MC  : catch - "[Alerta] Cliente desconectado abruptamente: [IP]"
 MC  ->  MC  : finally → liberarRecursos()
 
 alt idUsuarioAsignado != null

@@ -1,5 +1,5 @@
 @startuml seq_mensaje_privado
-title Flujo 2 — Mensaje Privado
+title Función principal 1 - Mensaje Privado
 
 skinparam sequenceArrowThickness 1.5
 skinparam sequenceParticipantBorderColor #666666
@@ -22,11 +22,17 @@ MCA  ->  SM   : obtenerSesion("B")
 alt B conectado
     SM  --> MCA  : ManejadorCliente B
     MCA ->  MCB  : enviarObjeto(PaqueteMensaje)
-    MCB --> CLIB : entrega mensaje
-    CLIB --> UB  : muestra mensaje de A
+
+    alt entrega exitosa
+        MCB --> CLIB : entrega mensaje
+        CLIB --> UB  : muestra mensaje de A
+    else IOException durante envío
+        MCA --> CLIA : PaqueteError - "El mensaje no pudo ser entregado"
+        CLIA --> UA  : muestra error de entrega
+    end
 else B offline
     SM  --> MCA  : null
-    MCA --> CLIA : PaqueteError — "Usuario B no está conectado"
+    MCA --> CLIA : PaqueteError - "Usuario B no está conectado"
     CLIA --> UA  : muestra error de entrega
 end
 
